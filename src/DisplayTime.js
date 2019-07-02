@@ -9,7 +9,6 @@ export default class DisplayTime extends React.Component {
       hours: 0,
       minutes: 0,
       seconds: 0,
-      milliseconds: 0,
       start: false,
       stop: false,
       reset: false
@@ -18,21 +17,38 @@ export default class DisplayTime extends React.Component {
     this.interval = null;
     this.updateTime = this.updateTime.bind(this);
     this.formatTime = this.formatTime.bind(this);
-    this.startStopWatch = this.startStopWatch.bind(this);
     this.createButtons = this.createButtons.bind(this);
+    this.takeAction = this.takeAction.bind(this);
+    this.triggerStopWatch = this.triggerStopWatch.bind(this);
+    this.stopStopWatch = this.stopStopWatch.bind(this);
+    this.resetStopWatch = this.resetStopWatch.bind(this);
   }
 
-  startStopWatch() {
-    this.setState({
-      start: true
-    });
+  triggerStopWatch() {
+    if (this.state.start) {
+      console.log('Cannot run since there is already a stop watch running...');
+      return;
+   }
+
+    this.interval = setInterval(this.updateTime, 1000);
   }
-  
-  componentDidMount() {
-    console.log('got here', this.props)
-    if (this.props.shouldStart) {
-      this.interval = setInterval(this.updateTime, 1000);
+
+  stopStopWatch() {
+    if (!this.interval || this.state.stop) {
+       console.log('Cannot stop since stop watch is not running...');
+       return;
     }
+
+    clearInterval(this.interval);
+  }
+
+  resetStopWatch() {
+    if (!this.interval || this.state.reset) {
+      console.log('Stop watch is neither running nor stopped');
+      return
+    }
+
+    clearInterval(this.interval);
   }
 
   updateTime() {
@@ -80,12 +96,15 @@ export default class DisplayTime extends React.Component {
     switch(action) {
       case 'Start': 
         this.setState({start: true, stop: false, reset: false});
+        this.triggerStopWatch();
         break;
       case 'Stop': 
         this.setState({start: false, stop: true, reset: false});
+        this.stopStopWatch();
         break;
       case 'Reset': 
-        this.setState({start: false, stop: false, reset: true});
+        this.setState({start: false, stop: false, reset: true, hours: 0, minutes: 0, seconds: 0});
+        this.resetStopWatch();
         break;
       default:
     }
