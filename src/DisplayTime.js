@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from './Button';
+import ErrorMessage from './ErrorMessage';
 const BUTTONS = require('./constants').actionButtons;
 
 export default class DisplayTime extends React.Component {
@@ -26,29 +27,41 @@ export default class DisplayTime extends React.Component {
 
   triggerStopWatch() {
     if (this.state.start) {
-      console.log('Cannot run since there is already a stop watch running...');
-      return;
-   }
+      this.setState({
+        errorMessage: 'Cannot start again since there is already a stop watch running...'
+      });
 
+      return;
+    }
+    
     this.interval = setInterval(this.updateTime, 1000);
+    this.setState({start: true, stop: false, reset: false, errorMessage: ''});
   }
 
   stopStopWatch() {
     if (!this.interval || this.state.stop) {
-       console.log('Cannot stop since stop watch is not running...');
-       return;
+      this.setState({
+        errorMessage: 'Cannot stop since stop watch is not running...',
+      });
+
+      return;
     }
 
     clearInterval(this.interval);
+    this.setState({start: false, stop: true, reset: false, errorMessage: ''});
   }
 
   resetStopWatch() {
     if (!this.interval || this.state.reset) {
-      console.log('Stop watch is neither running nor stopped');
+      this.setState({
+        errorMessage: 'Stop watch is neither running nor stopped'
+      });
+
       return
     }
 
     clearInterval(this.interval);
+    this.setState({start: false, stop: false, reset: true, hours: 0, minutes: 0, seconds: 0, errorMessage: ''});
   }
 
   updateTime() {
@@ -95,15 +108,12 @@ export default class DisplayTime extends React.Component {
   takeAction(action) {
     switch(action) {
       case 'Start': 
-        this.setState({start: true, stop: false, reset: false});
         this.triggerStopWatch();
         break;
       case 'Stop': 
-        this.setState({start: false, stop: true, reset: false});
         this.stopStopWatch();
         break;
       case 'Reset': 
-        this.setState({start: false, stop: false, reset: true, hours: 0, minutes: 0, seconds: 0});
         this.resetStopWatch();
         break;
       default:
@@ -124,6 +134,7 @@ export default class DisplayTime extends React.Component {
       <div className="actions">
         {this.createButtons()}
       </div>
+      <ErrorMessage message={this.state.errorMessage} />
       <h1>{this.formatTime()}</h1>
     </div>);
   }
