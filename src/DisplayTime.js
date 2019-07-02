@@ -1,21 +1,38 @@
 import React from 'react';
+import Button from './Button';
+const BUTTONS = require('./constants').actionButtons;
 
 export default class DisplayTime extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      hours: 22,
-      minutes: 58,
-      seconds: 59
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+      start: false,
+      stop: false,
+      reset: false
     };
 
     this.interval = null;
     this.updateTime = this.updateTime.bind(this);
     this.formatTime = this.formatTime.bind(this);
+    this.startStopWatch = this.startStopWatch.bind(this);
+    this.createButtons = this.createButtons.bind(this);
+  }
+
+  startStopWatch() {
+    this.setState({
+      start: true
+    });
   }
   
   componentDidMount() {
-    this.interval = setInterval(this.updateTime, 1000);
+    console.log('got here', this.props)
+    if (this.props.shouldStart) {
+      this.interval = setInterval(this.updateTime, 1000);
+    }
   }
 
   updateTime() {
@@ -59,9 +76,36 @@ export default class DisplayTime extends React.Component {
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   }
 
-  render() {    
-    return (
+  takeAction(action) {
+    switch(action) {
+      case 'Start': 
+        this.setState({start: true, stop: false, reset: false});
+        break;
+      case 'Stop': 
+        this.setState({start: false, stop: true, reset: false});
+        break;
+      case 'Reset': 
+        this.setState({start: false, stop: false, reset: true});
+        break;
+      default:
+    }
+  }
+
+  createButtons() {
+    return BUTTONS
+      .map(button => <Button 
+        key={button.id} 
+        buttonText={button.text}
+        buttonClickHandler={this.takeAction}
+      />);
+  }
+
+  render() {
+    return (<div>
+      <div className="actions">
+        {this.createButtons()}
+      </div>
       <h1>{this.formatTime()}</h1>
-    );
+    </div>);
   }
 }
