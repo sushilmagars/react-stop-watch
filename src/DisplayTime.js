@@ -4,13 +4,14 @@ export default class DisplayTime extends React.Component {
   constructor() {
     super();
     this.state = {
-      hours: 0,
-      minutes: 0,
-      seconds: 0
+      hours: 22,
+      minutes: 58,
+      seconds: 59
     };
 
     this.interval = null;
     this.updateTime = this.updateTime.bind(this);
+    this.formatTime = this.formatTime.bind(this);
   }
   
   componentDidMount() {
@@ -50,9 +51,17 @@ export default class DisplayTime extends React.Component {
     clearInterval(this.interval);
   }
 
-  render() {
+  formatTime() {
+    const formattedHours = this.state.hours < 10 ? `0${this.state.hours}` : this.state.hours;
+    const formattedMinutes = this.state.minutes < 10 ? `0${this.state.minutes}` : this.state.minutes;
+    const formattedSeconds = this.state.seconds < 10 ? `0${this.state.seconds}` : this.state.seconds;
+
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+  }
+
+  render() {    
     return (
-      <h1>{this.state.hours}:{this.state.minutes}:{this.state.seconds}</h1>
+      <h1>{this.formatTime()}</h1>
     );
   }
 }
